@@ -1,0 +1,59 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: sans-serif;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+  }
+  main {
+    flex: 1;
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid black;
+  }
+  .cards {
+    border: 1px solid red;
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+  }
+  .cards > div {
+    border: 1px dashed red;
+    min-height: 120px;
+  }
+  .graph {
+    border: 1px solid blue;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal {
+    border: 2px solid green;
+    padding: 16px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    display: none; /* hide for now */
+  }
+  .modal.open {
+    display: block;
+  }
+  #cardToday ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  

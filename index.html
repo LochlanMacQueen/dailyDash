@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Daily Dash</h1>
+        <button id="addTaskBtn">+</button>
+    </header>
+    <main>
+        <section class="cards">
+            <div>2d ago</div>
+            <div>Yesterday</div>
+            <div id="cardToday">Today</div>
+        </section>
+        <section class="graph">
+            <div id="graphMount"></div>
+        </section>
+    </main>
+    <div id="addTask" class="modal">
+        <h1>Add Task</h1>
+        <input id="taskTitle" type="text">
+        <div>
+            <button id="cancelAdd">Cancel</button>
+            <button id="saveAdd">Save</button>
+        </div>
+    </div>
+
+
+    <script src="script.js"></script>
+</body>
+</html>
