@@ -66,8 +66,8 @@ function renderToday() {
     ul.appendChild(li); 
     });
     card.appendChild(ul);
+    updateGraph();
 }
-renderToday();
 
 els.cardToday.addEventListener('change', (e) => {
     const el = e.target;
@@ -77,3 +77,16 @@ els.cardToday.addEventListener('change', (e) => {
     task.done = el.checked;
     renderToday();
 });
+
+//calculate percentage
+function updateGraph(){
+    const tasks = getTodayTasks();
+    let percent = 0;
+    if (tasks.length > 0){
+        const total = tasks.length;
+        const doneCount = tasks.filter(t => t.done).length;
+        percent = Math.round((doneCount / total) * 100);
+    }
+    els.graphMount.textContent = percent + "% done today";
+}
+renderToday();
