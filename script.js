@@ -1,38 +1,46 @@
-const addBtn = document.querySelector('header button');
-const modal = document.getElementById('addTask');
-
-addBtn.addEventListener('click', () => {
-    modal.classList.add('open');
-});
-
-document.querySelector('#addTask button:first-of-type')
-    .addEventListener('click', () => {
-        modal.classList.remove('open');
-    });
-
-// Data Definitions v
-
-const todayKey = new Date().toISOString().slice(0, 10);
-
-const state = { tasksByDate: {} }
-state.tasksByDate[todayKey] = []
-
-const seed = getTodayTasks();
-seed.push(
-    {id: crypto.randomUUID(), text: "Make Breakfast", done: true},
-    {id: crypto.randomUUID(), text: "Dont Poop", done: false},
-    {id: crypto.randomUUID(), text: "Go To Bed at 8pm", done: false}
-)
-
-// DOM References
-
 const els = {
     taskTitle: document.querySelector('#taskTitle'),
     cancelAdd: document.querySelector('#cancelAdd'),
     saveAdd: document.querySelector('#saveAdd'),
     cardToday: document.querySelector('#cardToday'),
     graphMount: document.querySelector('#graphMount'),
+    cardPrev1: document.querySelector('#cardPrev1'),
+    cardPrev2: document.querySelector('#cardPrev2'),
 }
+const addBtn = document.querySelector('header button');
+const modal = document.getElementById('addTask');
+
+addBtn.addEventListener('click', () => {
+    modal.classList.add('open');
+    els.taskTitle.value = '';
+    els.taskTitle.focus();
+});
+
+document.querySelector('#addTask button:first-of-type')
+    .addEventListener('click', () => {
+        modal.classList.remove('open');
+    });
+//save event listener
+els.saveAdd.addEventListener('click', () => {
+    const title = els.taskTitle.value.trim();
+    if(!title) return;
+    getTodayTasks().push({id: crypto.randomUUID(), text: title, done: false});
+    renderToday();
+    saveState();
+    els.taskTitle.value = '';
+    modal.classList.remove('open');
+});
+// Data Definitions v
+
+const todayKey = new Date().toISOString().slice(0, 10);
+
+const state = { tasksByDate: {} }
+state.tasksByDate[todayKey] = []
+loadState();
+renderToday();
+
+// DOM References
+
 //helper function
 function getTodayTasks() {
     if (!state.tasksByDate[todayKey]) {
@@ -76,6 +84,7 @@ els.cardToday.addEventListener('change', (e) => {
     const task = getTodayTasks().find(t => t.id === id);
     task.done = el.checked;
     renderToday();
+    saveState();
 });
 
 //calculate percentage
@@ -89,4 +98,59 @@ function updateGraph(){
     }
     els.graphMount.textContent = percent + "% done today";
 }
-renderToday();
+function saveState() {
+    localStorage.setItem('dailyDash', JSON.stringify({tasksByDate: state.tasksByDate }));
+}
+function loadState() {
+    const raw = localStorage.getItem('dailyDash');
+    if(!raw) return;
+    const parsed = JSON.parse(raw);
+    if(parsed.tasksByDate){
+        state.tasksByDate = parsed.tasksByDate;
+    }
+    if(!state.tasksByDate[todayKey]){
+        state.tasksByDate[todayKey] = [];
+    }
+}
+// offset dates
+function dateKeyFromOffset(offset) {
+    const base = new Date();
+    const d = new Date(base);
+    d.setDate(d.getDate() + offset);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${year}-${month}-${day}`;
+}
+function getTasksFor(dateKey) {
+    if(!state.tasksByDate[dateKey]){
+        state.tasksByDate[dateKey] = [];
+    }
+    return state.tasksByDate[dateKey];
+}
+function percentFrom(tasks) {
+    let percent = 0;
+    const total = tasks.length;
+    const done = tasks.filter(t => t.done).length;
+    if(total !== 0){
+        percent = Math.round((done / total) * 100);
+    }
+    return {done, total, percent};
+}
+function renderPastCard(el, offset) {
+    let title = '';
+    const key = dateKeyFromOffset(offset);
+    const tasks = getTasksFor(key);
+    const stats = percentFrom(tasks);
+    el.innerHTML = '';
+    if(offset === -1){
+        title = 'Yesterday';
+    } else if(offset === -2){
+        title = '2 days ago';
+    } else {
+        title = `${Math.abs(offset)} days ago`;
+    }
+    const h2 = document.createElement('h2');
+    h2.textContent = title;
+    el.appendChild(h2);
+}
