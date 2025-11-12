@@ -32,12 +32,11 @@ els.saveAdd.addEventListener('click', () => {
 });
 // Data Definitions v
 
-const todayKey = new Date().toISOString().slice(0, 10);
+const todayKey = dateKeyFromOffset(0);
 
 const state = { tasksByDate: {} }
-state.tasksByDate[todayKey] = []
-loadState();
-renderToday();
+renderPastCard(els.cardPrev1, -1);
+renderPastCard(els.cardPrev2, -2);
 
 // DOM References
 
@@ -75,6 +74,9 @@ function renderToday() {
     });
     card.appendChild(ul);
     updateGraph();
+    renderPastCard(els.cardPrev1, -1);
+    renderPastCard(els.cardPrev2, -2);
+
 }
 
 els.cardToday.addEventListener('change', (e) => {
@@ -153,4 +155,7 @@ function renderPastCard(el, offset) {
     const h2 = document.createElement('h2');
     h2.textContent = title;
     el.appendChild(h2);
+    const p = document.createElement('p');
+    p.textContent = `${stats.done}/${stats.total} done (${stats.percent}%)`
+    el.appendChild(p);
 }
