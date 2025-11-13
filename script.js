@@ -183,7 +183,8 @@ function renderGraph(){
         fill.className = 'graph-bar__fill';
         label.className = 'graph-bar__label'
         label.textContent = point.label;
-        fill.style.height = point.percent + '%';
+        const height = point.percent + '%';
+        fill.style.height = height;
         bar.appendChild(fill);
         bar.appendChild(label);
         wrapper.appendChild(bar);
