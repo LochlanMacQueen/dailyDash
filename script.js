@@ -1,3 +1,5 @@
+
+
 const els = {
     taskTitle: document.querySelector('#taskTitle'),
     cancelAdd: document.querySelector('#cancelAdd'),
@@ -35,8 +37,12 @@ els.saveAdd.addEventListener('click', () => {
 const todayKey = dateKeyFromOffset(0);
 
 const state = { tasksByDate: {} }
+//init functions 
+loadState();
+renderToday();
 renderPastCard(els.cardPrev1, -1);
 renderPastCard(els.cardPrev2, -2);
+renderGraph(); 
 
 // DOM References
 
@@ -71,12 +77,11 @@ function renderToday() {
     li.appendChild(label);
     li.appendChild(cb);
     ul.appendChild(li); 
-    });
-    card.appendChild(ul);
-    updateGraph();
-    renderPastCard(els.cardPrev1, -1);
-    renderPastCard(els.cardPrev2, -2);
-
+});
+card.appendChild(ul);
+renderPastCard(els.cardPrev1, -1);
+renderPastCard(els.cardPrev2, -2);
+renderGraph();
 }
 
 els.cardToday.addEventListener('change', (e) => {
@@ -89,19 +94,12 @@ els.cardToday.addEventListener('change', (e) => {
     saveState();
 });
 
-//calculate percentage
-function updateGraph(){
-    const tasks = getTodayTasks();
-    let percent = 0;
-    if (tasks.length > 0){
-        const total = tasks.length;
-        const doneCount = tasks.filter(t => t.done).length;
-        percent = Math.round((doneCount / total) * 100);
-    }
-    els.graphMount.textContent = percent + "% done today";
-}
 function saveState() {
-    localStorage.setItem('dailyDash', JSON.stringify({tasksByDate: state.tasksByDate }));
+    const toSave = {
+        tasksByDate : state.tasksByDate,
+        lastKey: todayKey
+    };
+    localStorage.setItem('dailyDash', JSON.stringify(toSave));
 }
 function loadState() {
     const raw = localStorage.getItem('dailyDash');
@@ -110,7 +108,8 @@ function loadState() {
     if(parsed.tasksByDate){
         state.tasksByDate = parsed.tasksByDate;
     }
-    if(!state.tasksByDate[todayKey]){
+    state.lastKey = parsed.lastKey;
+    if(parsed.lastKey !== todayKey || !state.tasksByDate[todayKey]){
         state.tasksByDate[todayKey] = [];
     }
 }
@@ -143,7 +142,6 @@ function renderPastCard(el, offset) {
     let title = '';
     const key = dateKeyFromOffset(offset);
     const tasks = getTasksFor(key);
-    const stats = percentFrom(tasks);
     el.innerHTML = '';
     if(offset === -1){
         title = 'Yesterday';
@@ -152,10 +150,63 @@ function renderPastCard(el, offset) {
     } else {
         title = `${Math.abs(offset)} days ago`;
     }
+    const ul = document.createElement('ul');
     const h2 = document.createElement('h2');
     h2.textContent = title;
     el.appendChild(h2);
-    const p = document.createElement('p');
-    p.textContent = `${stats.done}/${stats.total} done (${stats.percent}%)`
-    el.appendChild(p);
+    tasks.forEach(task => {
+        const li = document.createElement('li');
+        const label = document.createElement('label');
+        const cb = document.createElement('input');
+        cb.type = 'checkbox'
+        cb.checked = task.done;
+        cb.disabled = true;
+        label.textContent = task.text;
+        li.appendChild(label);
+        li.appendChild(cb);
+        ul.appendChild(li);
+    })
+    el.appendChild(ul);
+}
+function renderGraph(){
+    const data = buildFiveDayHistory();
+    console.log('graph data:', data);
+    const root = els.graphMount;
+    root.innerHTML = '';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'graph-bars';
+    data.forEach(point => {
+        const bar = document.createElement('div');
+        const fill = document.createElement('div');
+        const label = document.createElement('div');
+        bar.className = 'graph-bar';
+        fill.className = 'graph-bar__fill';
+        label.className = 'graph-bar__label'
+        label.textContent = point.label;
+        fill.style.height = point.percent + '%';
+        bar.appendChild(fill);
+        bar.appendChild(label);
+        wrapper.appendChild(bar);
+    })
+    root.appendChild(wrapper);
+}
+function buildFiveDayHistory(){
+    const arr = [];
+    for(let i = -4; i <= 0; i++) {
+        const key = dateKeyFromOffset(i);
+        const tasks = getTasksFor(key);
+        const stats = percentFrom(tasks);
+        let label =  '';
+        if(i === 0){
+            label = 'Today';
+        }
+        else {
+            label = Math.abs(i) + 'd';
+        }
+        arr.push({
+            label: label,
+            percent: stats.percent
+        })
+    }
+    return arr;
 }

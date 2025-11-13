@@ -2,43 +2,44 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-  }
-  body {
+}
+body {
     height: 100vh;
     display: flex;
     flex-direction: column;
     font-family: sans-serif;
-  }
-  header {
+
+}
+header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
-  }
-  main {
+}
+main {
     flex: 1;
     display: grid;
     grid-template-rows: 1fr 1fr;
     gap: 8px;
     padding: 8px;
     border: 1px solid black;
-  }
-  .cards {
+}
+.cards {
     border: 1px solid red;
     display: grid;
     grid-template-columns: repeat(3,1fr);
-  }
-  .cards > div {
+}
+.cards > div {
     border: 1px dashed red;
     min-height: 120px;
-  }
-  .graph {
+}
+.graph {
     border: 1px solid blue;
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-  .modal {
+}
+.modal {
     border: 2px solid green;
     padding: 16px;
     position: fixed;
@@ -47,13 +48,42 @@
     transform: translate(-50%, -50%);
     background: white;
     display: none; /* hide for now */
-  }
-  .modal.open {
+}
+.modal.open {
     display: block;
-  }
-  #cardToday ul {
+}
+#cardToday ul {
     list-style: none;
     padding: 0;
     margin: 0;
-  }
-  
+}
+.graph-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 120px;          /* important: gives a reference height */
+}
+.graph-bar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 12px;
+}
+.graph-bar__fill {
+    width: 40px;
+    height: 100%;     /* just to test */
+    background: red;
+}
+.graph-bar__fill {
+    width: 16px;
+    background: black;      /* temp color so you see it */
+    border-radius: 4px 4px 0 0;
+    transition: height 0.2s;
+}
+.graph-bar__label {
+    margin-top: 4px;
+}
+#graphMount {
+    width: 100%;
+}
